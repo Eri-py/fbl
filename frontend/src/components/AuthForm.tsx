@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -23,9 +24,10 @@ export default function AuthForm({ open, onClose, onSuccess }: AuthFormProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const { login, signup } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
@@ -34,27 +36,22 @@ export default function AuthForm({ open, onClose, onSuccess }: AuthFormProps) {
       return
     }
 
-    let success = false
+    setLoading(true)
 
-    if (mode === 'login') {
-      success = login(username, password)
-      if (!success) {
-        setError('Invalid username or password')
-        return
+    try {
+      if (mode === 'login') {
+        await login(username, password)
+      } else {
+        await signup(username, password)
       }
-    } else {
-      success = signup(username, password)
-      if (!success) {
-        setError('Username already taken')
-        return
-      }
-    }
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (success) {
       onSuccess()
       setUsername('')
       setPassword('')
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'An error occurred')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -90,6 +87,7 @@ export default function AuthForm({ open, onClose, onSuccess }: AuthFormProps) {
             onChange={(e) => setUsername(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
 
           <TextField
@@ -100,6 +98,7 @@ export default function AuthForm({ open, onClose, onSuccess }: AuthFormProps) {
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
 
           <Button
@@ -108,8 +107,15 @@ export default function AuthForm({ open, onClose, onSuccess }: AuthFormProps) {
             variant="contained"
             size="large"
             sx={{ mt: 3 }}
+            disabled={loading}
           >
-            {mode === 'login' ? 'Login' : 'Sign Up'}
+            {loading ? (
+              <CircularProgress size={24} />
+            ) : mode === 'login' ? (
+              'Login'
+            ) : (
+              'Sign Up'
+            )}
           </Button>
         </Box>
       </DialogContent>

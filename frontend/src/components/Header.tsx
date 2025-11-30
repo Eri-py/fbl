@@ -55,7 +55,10 @@ export default function Header() {
       >
         <Toolbar>
           {/* Left: Project Name - Clickable to go home */}
-          <Link to="/">
+          <Link
+            to="/"
+            style={{ textTransform: 'unset', textDecoration: 'unset' }}
+          >
             <Typography
               variant="h5"
               component="div"
@@ -63,7 +66,6 @@ export default function Header() {
                 fontWeight: 'bold',
                 background: 'linear-gradient(45deg, #1565c0, #42a5f5)',
                 backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
                 color: 'transparent',
                 cursor: 'pointer',
                 '&:hover': {
